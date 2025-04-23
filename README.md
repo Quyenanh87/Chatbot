@@ -24,7 +24,7 @@ Trong quá trình cài chọn mặc định → Finish
 ```
 ---
 
-## ⚙️ Bước 1: Clone project
+## Bước 1: Clone project
 ```bash
 git clone https://github.com/Quyenanh87/Chatbot.git
 cd Chatbot
@@ -32,12 +32,12 @@ cd Chatbot
 
 ---
 
-## 🐍 Bước 2: Cài đặt Backend
+## Bước 2: Cài đặt Backend
 ```bash
 cd backend
 ```
 
-### ✅ Cài Python ảo và thư viện:
+### Cài Python ảo và thư viện:
 
 #### Nếu dùng Ubuntu/Debian:
 ```bash
@@ -66,7 +66,7 @@ source venv/bin/activate
 pip install -r ../requirements.txt
 ```
 
-### ✅ Tạo file `.env`
+### Tạo file `.env`
 Tạo file `backend/.env` và thêm API key của Gemini:
 ```env
 GEMINI_API_KEY=your_google_gemini_api_key
@@ -84,7 +84,7 @@ pip install python-multipart
 
 ---
 
-## 🌐 Bước 3: Chạy Frontend (React)
+## Bước 3: Chạy Frontend (React)
 Mở 1 terminal khác 
 ```bash
 cd Chatbot/frontend
