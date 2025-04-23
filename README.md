@@ -1,6 +1,27 @@
 ### Đối với **Windows/macOS/Linux (Ubuntu)**:
+- Cần cài đặt đủ trước khi clone git
 - Python **>=3.10**
+```
+Tải Python: https://www.python.org/downloads/windows/
+Chọn bản ≥ 3.10
+Tích vào "Add Python to PATH" khi cài
+Sau đó kiểm tra:python --version
+```
 - NodeJS **>=18.x** và npm
+```
+Tải từ: https://nodejs.org
+Chọn bản LTS (recommended)
+Tự động cài cả node và npm
+Sau khi cài, kiểm tra:
++ node -v
++ npm -v
+Reset máy để Path cập nhật
+```
+- Cài git
+```
+Tải Git tại: https://git-scm.com
+Trong quá trình cài chọn mặc định → Finish
+```
 ---
 
 ## ⚙️ Bước 1: Clone project
@@ -45,11 +66,6 @@ source venv/bin/activate
 pip install -r ../requirements.txt
 ```
 
-> 🔧 Nếu gặp lỗi `Form data requires "python-multipart"`, cài thêm:
-```bash
-pip install python-multipart
-```
-
 ### ✅ Tạo file `.env`
 Tạo file `backend/.env` và thêm API key của Gemini:
 ```env
@@ -62,7 +78,8 @@ GEMINI_API_KEY=AIzaSyBPo2R3yqkM0rp62n1JH_0X8SOvYAw9Fr8
 ```bash
 uvicorn main:app --reload
 ```
-
+>  Nếu gặp lỗi `Form data requires "python-multipart"`, ctrl + C để thoát và cài thêm:
+pip install python-multipart
 > Server sẽ chạy tại `http://localhost:8000`
 
 ---
@@ -72,7 +89,9 @@ Mở 1 terminal khác
 ```bash
 cd Chatbot/frontend
 ```
-
+> Nếu Ubuntu chưa cài Nodejs phải cài thêm:
+sudo apt install nodejs npm 
+> 
 ### Cài thư viện:
 ```bash
 npm install
