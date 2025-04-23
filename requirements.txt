@@ -1,0 +1,7 @@
+fastapi
+uvicorn
+python-dotenv
+PyMuPDF
+google-generativeai
+aiofiles
+scikit-learn
