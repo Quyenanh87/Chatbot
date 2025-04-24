@@ -66,20 +66,25 @@ source venv/bin/activate
 pip install -r ../requirements.txt
 ```
 
-### Tạo file `.env`
-Tạo file `backend/.env` và thêm API key của Gemini:
-```env
+### Tạo 2 file `.env`
+Tạo 1 file `backend/.env` và thêm API key của Gemini 
+```
 GEMINI_API_KEY=your_google_gemini_api_key
 Đây là API_key của em bình thường sẽ không để ở đây nhưng em để cho quý công ty dễ test
 GEMINI_API_KEY=AIzaSyBPo2R3yqkM0rp62n1JH_0X8SOvYAw9Fr8
+```
+```
+Tạo 1 file `frontend/.env` và thêm url của backend
+REACT_APP_API_BASE_URL=your_url_link_backend
+REACT_APP_API_BASE_URL=http://localhost:8000 (Nếu chạy local)
+REACT_APP_API_BASE_URL=https://chatbot-test-intern.onrender.com (Nếu muốn deploy)
 ```
 
 #### Chạy server FastAPI:
 ```bash
 uvicorn main:app --reload
 ```
->  Nếu gặp lỗi `Form data requires "python-multipart"`, ctrl + C để thoát và cài thêm:
-pip install python-multipart
+
 > Server sẽ chạy tại `http://localhost:8000`
 
 ---
