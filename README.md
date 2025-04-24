@@ -44,12 +44,6 @@ source venv/bin/activate
 ```bash
 pip install -r ../requirements.txt
 ```
-
-> 🔧 Nếu gặp lỗi `Form data requires "python-multipart"`, cài thêm:
-```bash
-pip install python-multipart
-```
-
 ### ✅ Tạo file `.env`
 Tạo file `backend/.env` và thêm API key của Gemini:
 ```env
