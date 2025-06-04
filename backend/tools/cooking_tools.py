@@ -12,36 +12,36 @@ class CookingTools:
             self.recipes_df = pd.DataFrame()
         
     def recipe_finder(self, query: str) -> str:
-        """Find recipes based on ingredients, cuisine, or difficulty"""
+        """Find recipes based on exact name match"""
         if self.recipes_df.empty:
             return "Xin lỗi, không thể tải dữ liệu công thức nấu ăn."
             
         # Convert query to lowercase for case-insensitive search
         query = query.lower()
         
-        # Search in multiple columns
+        # Search for exact matches in recipe_name
         matches = self.recipes_df[
-            self.recipes_df['recipe_name'].str.lower().str.contains(query) |
-            self.recipes_df['cuisine'].str.lower().str.contains(query) |
-            self.recipes_df['ingredients'].str.lower().str.contains(query)
+            self.recipes_df['recipe_name'].str.lower() == query
         ]
         
         if matches.empty:
-            return "Không tìm thấy công thức phù hợp với yêu cầu của bạn."
+            return f"Xin lỗi, tôi không tìm thấy món {query} trong cơ sở dữ liệu của mình. Tôi chỉ có thể cung cấp thông tin về các món có trong danh sách."
             
-        # Format the first matching recipe
+        # Format the matching recipe
         recipe = matches.iloc[0]
-        ingredients = recipe['ingredients'].replace(';', ', ')
+        ingredients = recipe['ingredients'].replace(';', '\n- ')
         instructions = recipe['instructions'].replace(';', '\n')
         
         return (
-            f"Tìm thấy công thức: {recipe['recipe_name']}" + "\n" +
-            f"Phong cách: {recipe['cuisine']}" + "\n" +
-            f"Độ khó: {recipe['difficulty']}" + "\n" +
-            f"Thời gian: {recipe['prep_time'] + recipe['cook_time']} phút" + "\n" +
-            f"Nguyên liệu: {ingredients}" + "\n" +
-            "Hướng dẫn:" + "\n" +
-            f"{instructions}" + "\n" +
+            f"Đây là công thức nấu món {recipe['recipe_name']}:\n\n" +
+            f"Phong cách: {recipe['cuisine']}\n" +
+            f"Độ khó: {recipe['difficulty']}\n" +
+            f"Thời gian chuẩn bị: {recipe['prep_time']} phút\n" +
+            f"Thời gian nấu: {recipe['cook_time']} phút\n" +
+            f"Phục vụ: {recipe['servings']} người\n\n" +
+            f"Nguyên liệu cần có:\n- {ingredients}\n\n" +
+            "Các bước thực hiện:\n" +
+            f"{instructions}\n\n" +
             f"Mẹo: {recipe['tips']}"
         )
 
@@ -104,17 +104,17 @@ class CookingTools:
         """Get timing information for a recipe"""
         recipe = self.recipes_df[self.recipes_df['recipe_name'].str.lower() == recipe_name.lower()]
         if recipe.empty:
-            return "Recipe not found."
+            return f"Xin lỗi, tôi không tìm thấy món {recipe_name} trong cơ sở dữ liệu của mình."
             
         r = recipe.iloc[0]
         instructions = r['instructions'].replace(';', '\n')
         
         return (
-            f"Timing for {r['recipe_name']}:" + "\n" +
-            f"Prep Time: {r['prep_time']} minutes" + "\n" +
-            f"Cooking Time: {r['cook_time']} minutes" + "\n" +
-            f"Total Time: {r['prep_time'] + r['cook_time']} minutes" + "\n\n" +
-            "Instructions with timing:" + "\n" +
+            f"Thông tin thời gian nấu món {r['recipe_name']}:\n\n" +
+            f"Thời gian chuẩn bị: {r['prep_time']} phút\n" +
+            f"Thời gian nấu: {r['cook_time']} phút\n" +
+            f"Tổng thời gian: {r['prep_time'] + r['cook_time']} phút\n\n" +
+            "Các bước thực hiện:\n" +
             f"{instructions}"
         )
 
@@ -122,17 +122,18 @@ class CookingTools:
         """Get nutritional information for a recipe"""
         recipe = self.recipes_df[self.recipes_df['recipe_name'].str.lower() == recipe_name.lower()]
         if recipe.empty:
-            return "Recipe not found."
+            return f"Xin lỗi, tôi không tìm thấy món {recipe_name} trong cơ sở dữ liệu của mình."
             
         r = recipe.iloc[0]
         nutrition = dict(item.split(':') for item in r['nutrition'].split(';'))
         
         return (
-            f"Nutritional Information for {r['recipe_name']} (per serving)" + "\n" +
-            f"Calories: {nutrition['calories']}" + "\n" +
-            f"Protein: {nutrition['protein']}" + "\n" +
-            f"Carbohydrates: {nutrition['carbs']}" + "\n\n" +
-            f"Recipe serves: {r['servings']} people"
+            f"Thông tin dinh dưỡng cho món {r['recipe_name']} (cho mỗi phần ăn):\n\n" +
+            f"Calories: {nutrition['calories']}\n" +
+            f"Protein: {nutrition['protein']}\n" +
+            f"Carbohydrates: {nutrition['carbs']}\n" +
+            f"Chất béo: {nutrition['fat']}\n\n" +
+            f"Món ăn này đủ cho {r['servings']} người ăn."
         )
 
     def list_ingredients(self, recipe_name: str) -> str:
@@ -140,16 +141,12 @@ class CookingTools:
         if self.recipes_df.empty:
             return "Xin lỗi, không thể tải dữ liệu công thức nấu ăn."
             
-        try:
-            # Tìm món ăn trong database
-            recipe = self.recipes_df[self.recipes_df['recipe_name'].str.contains(recipe_name, case=False, na=False)]
-            
-            if recipe.empty:
-                return f"Xin lỗi, tôi không tìm thấy thông tin về món {recipe_name} trong cơ sở dữ liệu."
-            
-            # Lấy thông tin nguyên liệu
-            ingredients = recipe.iloc[0]['ingredients']
-            return f"Để làm món {recipe_name}, bạn cần những nguyên liệu sau:\n{ingredients}"
-            
-        except Exception as e:
-            return f"Có lỗi khi tìm nguyên liệu: {str(e)}" 
+        # Tìm món ăn trong database bằng tên chính xác
+        recipe = self.recipes_df[self.recipes_df['recipe_name'].str.lower() == recipe_name.lower()]
+        
+        if recipe.empty:
+            return f"Xin lỗi, tôi không tìm thấy món {recipe_name} trong cơ sở dữ liệu của mình."
+        
+        # Lấy và định dạng thông tin nguyên liệu
+        ingredients = recipe.iloc[0]['ingredients'].replace(';', '\n- ')
+        return f"Để nấu món {recipe_name}, bạn cần những nguyên liệu sau:\n- {ingredients}" 
