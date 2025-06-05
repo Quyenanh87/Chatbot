@@ -3,39 +3,45 @@ from typing import List, Dict, Any
 import re
 from sklearn.preprocessing import MinMaxScaler
 import numpy as np
+import os
 
 class CookingTools:
     def __init__(self):
         """Initialize cooking tools with recipe data"""
+        # Sử dụng đường dẫn tương đối từ vị trí hiện tại của file
+        current_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        self.data_file = os.path.join(current_dir, 'data', 'recipes.csv')
+        
         try:
-            self.recipes_df = pd.read_csv('data/recipes.csv')
+            self.df = pd.read_csv(self.data_file)
+            print(f"✅ Loaded recipes database from {self.data_file}")
             # Chuẩn hóa các giá trị số để tính toán độ tương đồng
             self.scaler = MinMaxScaler()
-            if not self.recipes_df.empty:
-                self.recipes_df['normalized_time'] = self.scaler.fit_transform(
-                    self.recipes_df[['cook_time']].values
+            if not self.df.empty:
+                self.df['normalized_time'] = self.scaler.fit_transform(
+                    self.df[['cook_time']].values
                 )
                 # Chuyển đổi độ khó thành số
                 difficulty_map = {'Dễ': 1, 'Trung bình': 2, 'Khó': 3}
-                self.recipes_df['difficulty_score'] = self.recipes_df['difficulty'].map(difficulty_map)
-                self.recipes_df['normalized_difficulty'] = self.scaler.fit_transform(
-                    self.recipes_df[['difficulty_score']].values
+                self.df['difficulty_score'] = self.df['difficulty'].map(difficulty_map)
+                self.df['normalized_difficulty'] = self.scaler.fit_transform(
+                    self.df[['difficulty_score']].values
                 )
         except Exception as e:
-            print(f"Error loading recipes file: {str(e)}")
-            self.recipes_df = pd.DataFrame()
+            print(f"❌ Error loading recipes database: {str(e)}")
+            self.df = pd.DataFrame()
         
     def recipe_finder(self, query: str) -> str:
         """Find recipes based on exact name match"""
-        if self.recipes_df.empty:
+        if self.df.empty:
             return "Xin lỗi, không thể tải dữ liệu công thức nấu ăn."
             
         # Convert query to lowercase for case-insensitive search
         query = query.lower()
         
         # Search for exact matches in recipe_name
-        matches = self.recipes_df[
-            self.recipes_df['recipe_name'].str.lower() == query
+        matches = self.df[
+            self.df['recipe_name'].str.lower() == query
         ]
         
         if matches.empty:
@@ -83,7 +89,7 @@ class CookingTools:
     def portion_calculator(self, recipe_name: str, desired_servings: int) -> str:
         """Calculate ingredient portions for desired number of servings"""
         # Find the recipe
-        recipe = self.recipes_df[self.recipes_df['recipe_name'].str.lower() == recipe_name.lower()]
+        recipe = self.df[self.df['recipe_name'].str.lower() == recipe_name.lower()]
         if recipe.empty:
             return "Recipe not found."
             
@@ -116,7 +122,7 @@ class CookingTools:
 
     def cooking_timer(self, recipe_name: str) -> str:
         """Get timing information for a recipe"""
-        recipe = self.recipes_df[self.recipes_df['recipe_name'].str.lower() == recipe_name.lower()]
+        recipe = self.df[self.df['recipe_name'].str.lower() == recipe_name.lower()]
         if recipe.empty:
             return f"Xin lỗi, tôi không tìm thấy món {recipe_name} trong cơ sở dữ liệu của mình."
             
@@ -134,7 +140,7 @@ class CookingTools:
 
     def nutrition_info(self, recipe_name: str) -> str:
         """Get nutritional information for a recipe"""
-        recipe = self.recipes_df[self.recipes_df['recipe_name'].str.lower() == recipe_name.lower()]
+        recipe = self.df[self.df['recipe_name'].str.lower() == recipe_name.lower()]
         if recipe.empty:
             return f"Xin lỗi, tôi không tìm thấy món {recipe_name} trong cơ sở dữ liệu của mình."
             
@@ -152,11 +158,11 @@ class CookingTools:
 
     def list_ingredients(self, recipe_name: str) -> str:
         """Liệt kê nguyên liệu cần thiết cho một món ăn"""
-        if self.recipes_df.empty:
+        if self.df.empty:
             return "Xin lỗi, không thể tải dữ liệu công thức nấu ăn."
             
         # Tìm món ăn trong database bằng tên chính xác
-        recipe = self.recipes_df[self.recipes_df['recipe_name'].str.lower() == recipe_name.lower()]
+        recipe = self.df[self.df['recipe_name'].str.lower() == recipe_name.lower()]
         
         if recipe.empty:
             return f"Xin lỗi, tôi không tìm thấy món {recipe_name} trong cơ sở dữ liệu của mình."
@@ -167,7 +173,7 @@ class CookingTools:
 
     def recipe_recommender(self, preferences: str) -> str:
         """Gợi ý món ăn dựa trên sở thích của người dùng"""
-        if self.recipes_df.empty:
+        if self.df.empty:
             return "Xin lỗi, không thể tải dữ liệu công thức nấu ăn."
 
         try:
@@ -179,7 +185,7 @@ class CookingTools:
 
             # Tính điểm phù hợp cho mỗi công thức
             scores = []
-            for _, recipe in self.recipes_df.iterrows():
+            for _, recipe in self.df.iterrows():
                 score = 0
 
                 # Đánh giá thời gian nấu
@@ -207,8 +213,8 @@ class CookingTools:
                 scores.append(score)
 
             # Lấy 5 món có điểm cao nhất
-            self.recipes_df['match_score'] = scores
-            top_matches = self.recipes_df.nlargest(5, 'match_score')
+            self.df['match_score'] = scores
+            top_matches = self.df.nlargest(5, 'match_score')
 
             # Format kết quả
             result = "Dựa trên yêu cầu của bạn, đây là 5 món ăn phù hợp nhất:\n\n"
