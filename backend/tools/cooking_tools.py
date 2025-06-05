@@ -1,12 +1,26 @@
 import pandas as pd
 from typing import List, Dict, Any
 import re
+from sklearn.preprocessing import MinMaxScaler
+import numpy as np
 
 class CookingTools:
     def __init__(self):
         """Initialize cooking tools with recipe data"""
         try:
             self.recipes_df = pd.read_csv('data/recipes.csv')
+            # Chuẩn hóa các giá trị số để tính toán độ tương đồng
+            self.scaler = MinMaxScaler()
+            if not self.recipes_df.empty:
+                self.recipes_df['normalized_time'] = self.scaler.fit_transform(
+                    self.recipes_df[['cook_time']].values
+                )
+                # Chuyển đổi độ khó thành số
+                difficulty_map = {'Dễ': 1, 'Trung bình': 2, 'Khó': 3}
+                self.recipes_df['difficulty_score'] = self.recipes_df['difficulty'].map(difficulty_map)
+                self.recipes_df['normalized_difficulty'] = self.scaler.fit_transform(
+                    self.recipes_df[['difficulty_score']].values
+                )
         except Exception as e:
             print(f"Error loading recipes file: {str(e)}")
             self.recipes_df = pd.DataFrame()
@@ -149,4 +163,63 @@ class CookingTools:
         
         # Lấy và định dạng thông tin nguyên liệu
         ingredients = recipe.iloc[0]['ingredients'].replace(';', '\n- ')
-        return f"Để nấu món {recipe_name}, bạn cần những nguyên liệu sau:\n- {ingredients}" 
+        return f"Để nấu món {recipe_name}, bạn cần những nguyên liệu sau:\n- {ingredients}"
+
+    def recipe_recommender(self, preferences: str) -> str:
+        """Gợi ý món ăn dựa trên sở thích của người dùng"""
+        if self.recipes_df.empty:
+            return "Xin lỗi, không thể tải dữ liệu công thức nấu ăn."
+
+        try:
+            # Parse preferences from input string
+            prefs = {}
+            for pref in preferences.split(','):
+                key, value = pref.split(':')
+                prefs[key.strip().lower()] = value.strip().lower()
+
+            # Tính điểm phù hợp cho mỗi công thức
+            scores = []
+            for _, recipe in self.recipes_df.iterrows():
+                score = 0
+
+                # Đánh giá thời gian nấu
+                if 'time' in prefs:
+                    desired_time = float(prefs['time'])
+                    normalized_desired_time = self.scaler.transform(np.array([[desired_time]]))[0][0]
+                    time_diff = abs(recipe['normalized_time'] - normalized_desired_time)
+                    score += (1 - time_diff)  # Càng gần càng tốt
+
+                # Đánh giá độ khó
+                if 'difficulty' in prefs:
+                    difficulty_map = {'dễ': 1, 'trung bình': 2, 'khó': 3}
+                    if prefs['difficulty'] in difficulty_map:
+                        if recipe['difficulty'].lower() == prefs['difficulty']:
+                            score += 1
+
+                # Đánh giá số người ăn
+                if 'servings' in prefs:
+                    desired_servings = int(prefs['servings'])
+                    if recipe['servings'] == desired_servings:
+                        score += 1
+                    elif abs(recipe['servings'] - desired_servings) <= 2:
+                        score += 0.5
+
+                scores.append(score)
+
+            # Lấy 5 món có điểm cao nhất
+            self.recipes_df['match_score'] = scores
+            top_matches = self.recipes_df.nlargest(5, 'match_score')
+
+            # Format kết quả
+            result = "Dựa trên yêu cầu của bạn, đây là 5 món ăn phù hợp nhất:\n\n"
+            for idx, recipe in top_matches.iterrows():
+                result += f"🍳 {recipe['recipe_name']}\n"
+                result += f"   - Độ khó: {recipe['difficulty']}\n"
+                result += f"   - Thời gian nấu: {recipe['cook_time']} phút\n"
+                result += f"   - Số người ăn: {recipe['servings']} người\n"
+                result += f"   - Phong cách: {recipe['cuisine']}\n\n"
+
+            return result
+
+        except Exception as e:
+            return f"Xin lỗi, có lỗi xảy ra khi tìm món ăn phù hợp: {str(e)}\n\nVui lòng nhập theo định dạng: time:30, difficulty:dễ, servings:4" 
