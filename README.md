@@ -1,110 +1,120 @@
-### Đối với **Windows/macOS/Linux (Ubuntu)**:
-- Cần cài đặt đủ trước khi clone git
-- Python **>=3.10**
-```
-Tải Python: https://www.python.org/downloads/windows/
-Chọn bản ≥ 3.10
-Tích vào "Add Python to PATH" khi cài
-Sau đó kiểm tra:python --version
-```
-- NodeJS **>=18.x** và npm
-```
-Tải từ: https://nodejs.org
-Chọn bản LTS (recommended)
-Tự động cài cả node và npm
-Sau khi cài, kiểm tra:
-+ node -v
-+ npm -v
-Reset máy để Path cập nhật
-```
-- Cài git
-```
-Tải Git tại: https://git-scm.com
-Trong quá trình cài chọn mặc định → Finish
-```
----
+# Cooking Assistant - AI Chef Chatbot
 
-## Bước 1: Clone project
+Cooking Assistant là một chatbot thông minh được thiết kế để hỗ trợ người dùng trong việc nấu ăn. Với giao diện thân thiện và khả năng tương tác bằng tiếng Việt, chatbot có thể giúp bạn với các công thức nấu ăn, mẹo vặt trong bếp, và hướng dẫn chi tiết các bước thực hiện.
+
+## Tính năng chính
+
+- 🗣️ Tương tác bằng tiếng Việt tự nhiên
+- 👩‍🍳 Cung cấp công thức nấu ăn chi tiết
+- 📝 Hướng dẫn từng bước rõ ràng
+- 💡 Chia sẻ mẹo vặt và kinh nghiệm nấu ăn
+- 🎨 Giao diện người dùng hiện đại và thân thiện
+
+## Công nghệ sử dụng
+
+### Frontend
+- React.js
+- Tailwind CSS
+- Axios
+- Modern UI/UX với Glassmorphism design
+
+### Backend
+- FastAPI
+- Google Generative AI
+- Python 3.8+
+- Uvicorn ASGI server
+
+## Cài đặt và Chạy
+
+### Backend
+
+1. Tạo môi trường ảo và kích hoạt:
 ```bash
-git clone https://github.com/Quyenanh87/Chatbot.git
-cd Chatbot
+python -m venv venv
+source venv/bin/activate  # Linux/Mac
+venv\\Scripts\\activate   # Windows
 ```
 
----
-
-## Bước 2: Cài đặt Backend
+2. Cài đặt dependencies:
 ```bash
 cd backend
+pip install -r requirements.txt
 ```
 
-### Cài Python ảo và thư viện:
+3. Tạo file .env và thêm API key:
+```
+GOOGLE_API_KEY=your_api_key_here
+```
 
-#### Nếu dùng Ubuntu/Debian:
+4. Chạy server:
 ```bash
-sudo apt update
-sudo apt install python3-venv -y
-sudo apt install python3-pip -y
+uvicorn main:app --reload --port 8000
 ```
 
-#### Tạo môi trường ảo (tất cả hệ điều hành):
+### Frontend
+
+1. Cài đặt dependencies:
 ```bash
-python3 -m venv venv          # Hoặc: python -m venv venv (trên Windows/macOS)
-```
-
-#### Kích hoạt môi trường ảo:
-- Windows:
-```bash
-venv\Scripts\activate
-```
-- macOS/Linux:
-```bash
-source venv/bin/activate
-```
-
-#### Cài thư viện Python:
-```bash
-pip install -r ../requirements.txt
-```
-
-### Tạo 2 file `.env`
-Tạo 1 file `backend/.env` và thêm API key của Gemini 
-```
-GEMINI_API_KEY=your_google_gemini_api_key
-Đây là API_key của em bình thường sẽ không để ở đây nhưng em để cho quý công ty dễ test
-GEMINI_API_KEY=AIzaSyBPo2R3yqkM0rp62n1JH_0X8SOvYAw9Fr8
-```
-Tạo 1 file `frontend/.env` và thêm url của backend
-```
-REACT_APP_API_BASE_URL=your_url_link_backend
-REACT_APP_API_BASE_URL=http://localhost:8000 (Nếu chạy local)
-REACT_APP_API_BASE_URL=https://chatbot-test-intern.onrender.com (Nếu muốn deploy)
-```
-
-#### Chạy server FastAPI:
-```bash
-uvicorn main:app --reload
-```
-
-> Server sẽ chạy tại `http://localhost:8000`
-
----
-
-## Bước 3: Chạy Frontend (React)
-Mở 1 terminal khác 
-```bash
-cd Chatbot/frontend
-```
-> Nếu Ubuntu chưa cài Nodejs phải cài thêm:
-sudo apt install nodejs npm 
-> 
-### Cài thư viện:
-```bash
+cd frontend
 npm install
 ```
 
-### Chạy ứng dụng:
+2. Chạy development server:
 ```bash
-npm start
+npm run dev
 ```
 
-> Ứng dụng sẽ chạy tại `http://localhost:3000`
+## Cấu trúc thư mục
+
+```
+cooking-assistant/
+├── backend/
+│   ├── data/
+│   ├── models/
+│   ├── services/
+│   ├── tools/
+│   ├── main.py
+│   └── requirements.txt
+└── frontend/
+    ├── public/
+    ├── src/
+    │   ├── components/
+    │   ├── assets/
+    │   └── App.js
+    ├── package.json
+    └── tailwind.config.js
+```
+
+## API Endpoints
+
+- `POST /chat`: Endpoint chính để tương tác với chatbot
+  - Input: `{ "message": "string" }`
+  - Output: `{ "reply": "string" }`
+
+## Deployment
+
+### Backend
+- Đảm bảo tất cả dependencies trong requirements.txt được cài đặt
+- Cấu hình CORS cho domain frontend
+- Set up biến môi trường cho API keys
+
+### Frontend
+- Build production bundle: `npm run build`
+- Đảm bảo API endpoint được cấu hình đúng trong production
+- Static files được serve đúng cách
+
+## Môi trường hỗ trợ
+
+- Node.js 16+
+- Python 3.8+
+- Modern web browsers (Chrome, Firefox, Safari, Edge)
+
+
+
+## Tác giả
+
+Lưu Thế Quyền Anh
+
+## License
+
+MIT License
