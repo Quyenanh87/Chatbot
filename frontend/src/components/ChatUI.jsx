@@ -29,7 +29,9 @@ const ChatUI = () => {
   }, [messages]);
 
   const formatMessage = (text) => {
-    const lines = text.split('\n');
+    if (!text) return null; // Kiểm tra text có tồn tại không
+    
+    const lines = text.toString().split('\n');
     return lines.map((line, index) => {
       // Xóa tất cả dấu * và hiển thị bullet point cho mỗi dòng có nội dung
       if (line.includes('*')) {
@@ -56,7 +58,7 @@ const ChatUI = () => {
         );
       }
 
-      // Xử lý các tiêu đề (Nguyên liệu, Hướng dẫn, v.v.)
+      // Xử lý các tiêu đề
       if (line.endsWith(':')) {
         return (
           <h3 key={index} className="font-semibold text-green-400 mt-6 mb-4 text-lg border-b border-gray-600/50 pb-2 animate-fadeIn">
@@ -151,7 +153,7 @@ const ChatUI = () => {
                           : 'bg-gray-800/90 border border-gray-700/50 backdrop-blur-sm'
                       }`}
                     >
-                      {formatMessage(msg.text)}
+                      {formatMessage(msg.text) || <p className="text-gray-200">{msg.text}</p>}
                     </div>
                     {msg.isUser && (
                       <div className="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center ml-3 flex-shrink-0 shadow-lg border-2 border-gray-600/50">
