@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
 
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+
 const ChatUI = () => {
   const welcomeMessages = [
     "Xin chào! Tôi là bếp trưởng AI, rất vui được gặp bạn! Hôm nay bạn muốn nấu món gì nào? 👩‍🍳",
@@ -90,7 +92,7 @@ const ChatUI = () => {
     setIsLoading(true);
 
     try {
-      const response = await axios.post('http://localhost:8000/chat', {
+      const response = await axios.post(`${API_URL}/chat`, {
         message: userMessage
       });
 
